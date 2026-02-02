@@ -43,15 +43,25 @@
 | `lib/screens/practice_screen.dart` | Practice mode | Fullscreen countdown, beat dots |
 | `lib/screens/project_settings_screen.dart` | Settings | Name/BPM, font size, color presets |
 | `lib/widgets/project_card.dart` | Project card | Swipe-to-delete, long-press edit |
-| `lib/widgets/seek_bar.dart` | Custom seek bar | Slider with label markers, onDragUpdate callback, 12px thumb |
+| `lib/widgets/seek_bar.dart` | Linear seek bar | Slider with label markers, onDragUpdate callback, 12px thumb (used in landscape) |
+| `lib/widgets/circular_beat_grid.dart` | Circular seek bar | Arc-segment ring with playhead, center time/caption, tap/drag to seek |
 | `lib/widgets/label_tile.dart` | Label tile | Inline edit, swipe-to-delete |
 
 ## Important Code Patterns
 ### SeekBar drag → time display sync
-`SeekBar` exposes optional `onDragUpdate` callback (fires during `onChanged`). `PlayerScreen` tracks `_dragPosition` (nullable Duration). Time display uses `_dragPosition ?? streamPosition`. Cleared to null on `onSeek` (drag end).
+`SeekBar` and `CircularBeatGrid` both expose optional `onDragUpdate` callback. `PlayerScreen` tracks `_dragPosition` (nullable Duration). Cleared to null on `onSeek` (drag end).
+
+### Circular beat grid
+Portrait mode uses `CircularBeatGrid` — beats as arc segments around a ring starting at 12 o'clock. Center shows `mm:ss.SSS` and current label caption. Touch converts `atan2(dx, -dy)` to angle fraction for seeking. Falls back to plain Slider when no BPM set.
+
+### Beat stepping
+`BeatGrid.nextBeat(currentMs, songEndMs)` and `previousBeat(currentMs)` with 1ms epsilon to avoid sticking. Transport row: `[skip_prev_label] [prev_beat] [play/pause] [next_beat] [skip_next_label]`.
+
+### Orientation locking
+`main.dart` locks to portraitUp/portraitDown globally. Practice screen overrides to landscapeLeft/Right in `initState()`, restores portrait-only in `dispose()`.
 
 ### Add Label dialog timestamp
-Dialog returns Dart record `({String caption, String timestamp})`. `_parseTimestamp()` converts `mm:ss` string → milliseconds. Falls back to raw `posMs` if parse fails.
+Dialog returns Dart record `({String caption, String timestamp})`. `parseTimestamp()` converts `mm:ss.SSS` string → milliseconds. Falls back to raw `posMs` if parse fails.
 
 ### Skip-back fallback
 `_seekToPreviousLabel()` seeks to `Duration.zero` when `previousLabelIndex()` returns null.

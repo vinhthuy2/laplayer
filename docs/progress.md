@@ -132,9 +132,46 @@ Ready for device testing.
 | Flutter 3.32.6 incompatible with iOS 26 | Upgraded Flutter to 3.38.9 | 11 |
 | CocoaPods modular headers error | Added `use_modular_headers!` to Podfile | 11 |
 
+## Iteration 3: Circular Beat Grid + Beat Step Buttons + Portrait Lock
+> Completed: 2026-02-02
+
+### Step 1: Lock portrait orientation
+- [x] Completed
+- **Changes made:**
+  - `lib/main.dart`: Changed orientation lock from landscape to portraitUp/portraitDown
+  - `lib/screens/practice_screen.dart`: Added landscapeLeft/Right lock in initState(), restore portrait-only in dispose()
+- **Verified:** Yes — `flutter analyze` clean, tested on device
+
+### Step 2: Add nextBeat/previousBeat to BeatGrid
+- [x] Completed
+- **Changes made:**
+  - `lib/utils/beat_grid.dart`: Added `nextBeat(currentMs, songEndMs)` and `previousBeat(currentMs)` with 1ms epsilon
+- **Verified:** Yes — `flutter analyze` clean
+
+### Step 3: Create circular beat grid widget
+- [x] Completed
+- **Changes made:**
+  - `lib/widgets/circular_beat_grid.dart` (new): CircularBeatGrid StatefulWidget + _CircularBeatGridPainter CustomPainter
+  - Beats as arc segments around a ring, 12 o'clock start, clockwise
+  - Same color rules as linear grid, gap skip at >500 beats, measure-start arcs +3px
+  - Anchor border on inner+outer edge, label dots outside ring, white playhead line
+  - Center: mm:ss.SSS + current label caption
+  - Touch: atan2 angle from 12 o'clock, pan/tap to seek
+  - Fallback Slider when no BPM
+- **Verified:** Yes — `flutter analyze` clean, tested on device
+
+### Step 4: Integrate into PlayerScreen
+- [x] Completed
+- **Changes made:**
+  - `lib/screens/player_screen.dart`: Added imports, _seekToNextBeat/_seekToPreviousBeat methods, _buildCircularSeekBar method
+  - Transport row: [skip_prev_label] [prev_beat] [play/pause] [next_beat] [skip_next_label]
+  - Portrait body: circular seek bar (Expanded flex:3), removed separate time display
+  - Landscape layout kept as-is (dead code since portrait locked)
+- **Verified:** Yes — `flutter analyze` clean, tested on device
+
 ## Files Modified This Session
 - `pubspec.yaml` — Dependencies added
-- `lib/main.dart` — App entry with theme + landscape lock
+- `lib/main.dart` — App entry with theme + portrait lock
 - `lib/theme/app_theme.dart` — Dark theme
 - `lib/models/project.dart` — Project model + anchorTimestampMs
 - `lib/models/label.dart` — Label model + colorValue + presets
@@ -143,14 +180,15 @@ Ready for device testing.
 - `lib/services/audio_service.dart` — just_audio wrapper
 - `lib/services/audio_import_service.dart` — File picker + copy
 - `lib/providers/label_provider.dart` — Label state + updateLabel()
-- `lib/utils/time_format.dart` — mm:ss.SSS format/parse utilities (new)
-- `lib/utils/beat_grid.dart` — BeatGrid utility (new)
+- `lib/utils/time_format.dart` — mm:ss.SSS format/parse utilities
+- `lib/utils/beat_grid.dart` — BeatGrid utility + nextBeat/previousBeat
 - `lib/screens/project_list_screen.dart` — Home screen
 - `lib/screens/new_project_dialog.dart` — New project dialog
-- `lib/screens/player_screen.dart` — Player + anchor UI + label edit dialog
-- `lib/screens/practice_screen.dart` — Practice mode + per-label color + flash
+- `lib/screens/player_screen.dart` — Player + circular seek bar + beat-step buttons
+- `lib/screens/practice_screen.dart` — Practice mode + per-label color + flash + portrait restore
 - `lib/screens/project_settings_screen.dart` — Settings + beat anchor field
 - `lib/widgets/project_card.dart` — Project card widget
 - `lib/widgets/seek_bar.dart` — Beat-grid seek bar with CustomPainter
+- `lib/widgets/circular_beat_grid.dart` — Circular beat grid widget (new)
 - `lib/widgets/label_tile.dart` — Label tile with color dot + onEdit
 - `test/widget_test.dart` — Updated smoke test

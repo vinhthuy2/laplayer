@@ -37,4 +37,25 @@ class BeatGrid {
     final beatIdx = ((timestampMs - anchorMs) / beatIntervalMs).round();
     return beatIdx % 4 == 0;
   }
+
+  /// Return the ms position of the next beat after [currentMs],
+  /// or null if it would exceed [songEndMs].
+  int? nextBeat(int currentMs, int songEndMs) {
+    final interval = beatIntervalMs;
+    final offset = (currentMs - anchorMs) / interval;
+    final nextIndex = offset.floor() + 1;
+    final ms = (anchorMs + nextIndex * interval).round();
+    return ms <= songEndMs ? ms : null;
+  }
+
+  /// Return the ms position of the beat before [currentMs],
+  /// or null if it would be before 0.
+  /// Uses a 1ms epsilon so that sitting exactly on a beat moves to the previous one.
+  int? previousBeat(int currentMs) {
+    final interval = beatIntervalMs;
+    final offset = (currentMs - 1 - anchorMs) / interval;
+    final prevIndex = offset.floor();
+    final ms = (anchorMs + prevIndex * interval).round();
+    return ms >= 0 ? ms : null;
+  }
 }
