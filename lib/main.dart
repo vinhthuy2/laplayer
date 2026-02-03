@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'providers/theme_provider.dart';
 import 'theme/app_theme.dart';
 import 'screens/project_list_screen.dart';
 
@@ -9,7 +11,12 @@ void main() {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  runApp(const LaPlayerApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: const LaPlayerApp(),
+    ),
+  );
 }
 
 class LaPlayerApp extends StatelessWidget {
@@ -17,9 +24,12 @@ class LaPlayerApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
     return MaterialApp(
       title: 'LaPlayer',
-      theme: AppTheme.dark,
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: themeProvider.themeMode,
       home: const ProjectListScreen(),
     );
   }

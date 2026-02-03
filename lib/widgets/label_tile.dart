@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/label.dart';
+import '../theme/app_colors.dart';
 import '../utils/time_format.dart';
 
 class LabelTile extends StatelessWidget {
@@ -18,33 +19,37 @@ class LabelTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Dismissible(
       key: Key('label_${label.id}'),
       direction: DismissDirection.endToStart,
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
-        color: Colors.red,
+        color: colors.destructive,
         child: const Icon(Icons.delete, color: Colors.white),
       ),
       confirmDismiss: (_) async {
         return showDialog<bool>(
           context: context,
-          builder: (ctx) => AlertDialog(
-            title: const Text('Delete Label'),
-            content: const Text('Delete this label?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                child:
-                    const Text('Delete', style: TextStyle(color: Colors.red)),
-              ),
-            ],
-          ),
+          builder: (ctx) {
+            final dlgColors = ctx.colors;
+            return AlertDialog(
+              title: const Text('Delete Label'),
+              content: const Text('Delete this label?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  child: Text('Delete',
+                      style: TextStyle(color: dlgColors.destructiveText)),
+                ),
+              ],
+            );
+          },
         );
       },
       onDismissed: (_) => onDelete(),
@@ -53,9 +58,9 @@ class LabelTile extends StatelessWidget {
         title: Text(label.caption),
         subtitle: Text(
           formatTimestamp(label.timestampMs),
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: 'monospace',
-            color: Colors.white54,
+            color: colors.textTertiary,
           ),
         ),
         onTap: onTap,

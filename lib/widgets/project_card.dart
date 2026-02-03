@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/project.dart';
+import '../theme/app_colors.dart';
 
 class ProjectCard extends StatelessWidget {
   final Project project;
@@ -28,32 +29,37 @@ class ProjectCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Dismissible(
       key: Key('project_${project.id}'),
       direction: DismissDirection.endToStart,
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
-        color: Colors.red,
+        color: colors.destructive,
         child: const Icon(Icons.delete, color: Colors.white),
       ),
       confirmDismiss: (direction) async {
         return showDialog<bool>(
           context: context,
-          builder: (ctx) => AlertDialog(
-            title: const Text('Delete Project'),
-            content: Text('Delete "${project.name}"? This cannot be undone.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                child: const Text('Delete', style: TextStyle(color: Colors.red)),
-              ),
-            ],
-          ),
+          builder: (ctx) {
+            final dlgColors = ctx.colors;
+            return AlertDialog(
+              title: const Text('Delete Project'),
+              content: Text('Delete "${project.name}"? This cannot be undone.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  child: Text('Delete',
+                      style: TextStyle(color: dlgColors.destructiveText)),
+                ),
+              ],
+            );
+          },
         );
       },
       onDismissed: (_) => onDelete(),

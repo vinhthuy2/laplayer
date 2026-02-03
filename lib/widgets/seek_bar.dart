@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/label.dart';
-import '../theme/app_theme.dart';
+import '../theme/app_colors.dart';
+import '../theme/beat_grid_colors.dart';
 import '../utils/beat_grid.dart';
 
 class SeekBar extends StatefulWidget {
@@ -149,6 +150,17 @@ class _SeekBarState extends State<SeekBar> {
     Map<int, List<Label>> labelMap,
     double contentWidth,
   ) {
+    final colors = context.colors;
+    final gridColors = BeatGridColors(
+      accent: colors.primary,
+      accentMuted: colors.primaryMuted,
+      accentSubtle: colors.primarySubtle,
+      emptyStrong: colors.beatGridEmptyStrong,
+      empty: colors.beatGridEmpty,
+      playhead: colors.beatGridPlayhead,
+      anchorStroke: colors.primary,
+    );
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onHorizontalDragStart: (details) {
@@ -180,6 +192,7 @@ class _SeekBarState extends State<SeekBar> {
           labels: widget.labels,
           labelMap: labelMap,
           anchorMs: widget.anchorMs,
+          colors: gridColors,
         ),
       ),
     );
@@ -235,6 +248,7 @@ class _BeatGridPainter extends CustomPainter {
   final List<Label> labels;
   final Map<int, List<Label>> labelMap;
   final int anchorMs;
+  final BeatGridColors colors;
 
   _BeatGridPainter({
     required this.beats,
@@ -244,6 +258,7 @@ class _BeatGridPainter extends CustomPainter {
     required this.labels,
     required this.labelMap,
     required this.anchorMs,
+    required this.colors,
   });
 
   @override
@@ -274,14 +289,14 @@ class _BeatGridPainter extends CustomPainter {
       // Beat rectangle color
       Color beatColor;
       if (isCurrentBeat) {
-        beatColor = AppColors.accent;
+        beatColor = colors.accent;
       } else if (isFilled) {
         beatColor =
-            isMeasureStart ? AppColors.accent.withAlpha(160) : AppColors.accent.withAlpha(100);
+            isMeasureStart ? colors.accentMuted : colors.accentSubtle;
       } else {
         beatColor = isMeasureStart
-            ? const Color(0x4DFFFFFF) // white30
-            : const Color(0x1FFFFFFF); // white12
+            ? colors.emptyStrong
+            : colors.empty;
       }
 
       // Draw beat rectangle
@@ -293,7 +308,7 @@ class _BeatGridPainter extends CustomPainter {
         canvas.drawRect(
           rect,
           Paint()
-            ..color = AppColors.accent
+            ..color = colors.anchorStroke
             ..style = PaintingStyle.stroke
             ..strokeWidth = 2,
         );
@@ -318,6 +333,7 @@ class _BeatGridPainter extends CustomPainter {
     return oldDelegate.positionMs != positionMs ||
         oldDelegate.beats != beats ||
         oldDelegate.totalMs != totalMs ||
-        oldDelegate.labels != labels;
+        oldDelegate.labels != labels ||
+        oldDelegate.colors != colors;
   }
 }

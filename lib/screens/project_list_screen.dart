@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/project.dart';
+import '../providers/theme_provider.dart';
 import '../services/database_service.dart';
+import '../theme/app_colors.dart';
 import '../widgets/project_card.dart';
 import 'new_project_dialog.dart';
 import 'player_screen.dart';
@@ -118,7 +121,19 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('LaPlayer')),
+      appBar: AppBar(
+        title: const Text('LaPlayer'),
+        actions: [
+          IconButton(
+            icon: Icon(
+              context.watch<ThemeProvider>().isDark
+                  ? Icons.light_mode
+                  : Icons.dark_mode,
+            ),
+            onPressed: () => context.read<ThemeProvider>().toggle(),
+          ),
+        ],
+      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _projects.isEmpty
@@ -145,16 +160,17 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
   }
 
   Widget _buildEmptyState() {
+    final colors = context.colors;
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.music_note, size: 64, color: Colors.white24),
+          Icon(Icons.music_note, size: 64, color: colors.textTertiary),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'No projects yet.\nImport a song to get started.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white54),
+            style: TextStyle(color: colors.textSecondary),
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/project.dart';
 import '../services/database_service.dart';
 import '../services/audio_import_service.dart';
+import '../theme/app_colors.dart';
 
 class NewProjectDialog extends StatefulWidget {
   const NewProjectDialog({super.key});
@@ -65,6 +66,7 @@ class _NewProjectDialogState extends State<NewProjectDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return AlertDialog(
       title: const Text('New Project'),
       content: SingleChildScrollView(
@@ -93,7 +95,7 @@ class _NewProjectDialogState extends State<NewProjectDialog> {
                 : _audioFilePath != null
                     ? Row(
                         children: [
-                          const Icon(Icons.check_circle, color: Colors.green),
+                          Icon(Icons.check_circle, color: colors.success),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(

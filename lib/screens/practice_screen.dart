@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/project.dart';
 import '../models/label.dart';
 import '../services/audio_service.dart';
-import '../theme/app_theme.dart';
+// Practice mode uses its own dark color scheme intentionally
 import '../utils/time_format.dart';
 
 enum PracticeState { waiting, countdown, caption }
@@ -332,7 +332,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                     Icons.circle,
                     size: 16,
                     color: i < ds.beatsElapsed
-                        ? AppColors.accent
+                        ? const Color(0xFF5BB8A8)
                         : Colors.white24,
                   ),
                 );

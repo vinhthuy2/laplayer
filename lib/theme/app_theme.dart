@@ -1,50 +1,94 @@
 import 'package:flutter/material.dart';
-
-class AppColors {
-  static const primary = Color(0xFF1A237E);
-  static const accent = Color(0xFFFFC107);
-  static const background = Color(0xFF121212);
-  static const cardBg = Color(0xFF1E1E1E);
-  static const textPrimary = Color(0xFFFFFFFF);
-  static const textSecondary = Color(0xFFB0B0B0);
-}
+import 'app_colors.dart';
 
 class AppTheme {
-  static ThemeData get dark {
+  static ThemeData get light {
+    const c = AppColors.light;
     return ThemeData(
-      brightness: Brightness.dark,
-      primaryColor: AppColors.primary,
-      scaffoldBackgroundColor: AppColors.background,
-      colorScheme: const ColorScheme.dark(
-        primary: AppColors.primary,
-        secondary: AppColors.accent,
-        surface: AppColors.cardBg,
+      brightness: Brightness.light,
+      scaffoldBackgroundColor: c.background,
+      colorScheme: ColorScheme.light(
+        primary: c.primary,
+        secondary: c.primary,
+        surface: c.surface,
+        surfaceContainerHighest: c.surfaceVariant,
       ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.background,
-        foregroundColor: AppColors.textPrimary,
+      appBarTheme: AppBarTheme(
+        backgroundColor: c.background,
+        foregroundColor: c.textPrimary,
         elevation: 0,
       ),
-      cardTheme: const CardThemeData(
-        color: AppColors.cardBg,
-        elevation: 2,
-        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      cardTheme: CardThemeData(
+        color: c.surface,
+        elevation: 0,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: c.cardBorder),
+        ),
       ),
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: AppColors.accent,
-        foregroundColor: Colors.black,
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: c.primary,
+        foregroundColor: Colors.white,
       ),
-      textTheme: const TextTheme(
-        headlineLarge: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
-        bodyLarge: TextStyle(color: AppColors.textPrimary),
-        bodyMedium: TextStyle(color: AppColors.textSecondary),
+      textTheme: TextTheme(
+        headlineLarge: TextStyle(
+            color: c.textPrimary, fontWeight: FontWeight.bold),
+        bodyLarge: TextStyle(color: c.textPrimary),
+        bodyMedium: TextStyle(color: c.textSecondary),
       ),
-      dividerColor: Colors.white24,
-      sliderTheme: const SliderThemeData(
-        activeTrackColor: AppColors.accent,
-        thumbColor: AppColors.accent,
-        inactiveTrackColor: Colors.white24,
+      dividerColor: c.divider,
+      sliderTheme: SliderThemeData(
+        activeTrackColor: c.primary,
+        thumbColor: c.primary,
+        inactiveTrackColor: c.divider,
       ),
+      extensions: const [AppColors.light],
+    );
+  }
+
+  static ThemeData get dark {
+    const c = AppColors.dark;
+    return ThemeData(
+      brightness: Brightness.dark,
+      scaffoldBackgroundColor: c.background,
+      colorScheme: ColorScheme.dark(
+        primary: c.primary,
+        secondary: c.primary,
+        surface: c.surface,
+        surfaceContainerHighest: c.surfaceVariant,
+      ),
+      appBarTheme: AppBarTheme(
+        backgroundColor: c.background,
+        foregroundColor: c.textPrimary,
+        elevation: 0,
+      ),
+      cardTheme: CardThemeData(
+        color: c.surface,
+        elevation: 0,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: c.cardBorder),
+        ),
+      ),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: c.primary,
+        foregroundColor: Colors.white,
+      ),
+      textTheme: TextTheme(
+        headlineLarge: TextStyle(
+            color: c.textPrimary, fontWeight: FontWeight.bold),
+        bodyLarge: TextStyle(color: c.textPrimary),
+        bodyMedium: TextStyle(color: c.textSecondary),
+      ),
+      dividerColor: c.divider,
+      sliderTheme: SliderThemeData(
+        activeTrackColor: c.primary,
+        thumbColor: c.primary,
+        inactiveTrackColor: c.divider,
+      ),
+      extensions: const [AppColors.dark],
     );
   }
 }

@@ -1,7 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../models/label.dart';
-import '../theme/app_theme.dart';
+import '../theme/app_colors.dart';
+import '../theme/beat_grid_colors.dart';
 import '../utils/beat_grid.dart';
 import '../utils/time_format.dart';
 
@@ -55,6 +56,17 @@ class _CircularBeatGridState extends State<CircularBeatGrid> {
     if (_totalMs <= 0 || widget.bpm == null || widget.bpm! <= 0) {
       return _buildFallbackSlider();
     }
+
+    final colors = context.colors;
+    final gridColors = BeatGridColors(
+      accent: colors.primary,
+      accentMuted: colors.primaryMuted,
+      accentSubtle: colors.primarySubtle,
+      emptyStrong: colors.beatGridEmptyStrong,
+      empty: colors.beatGridEmpty,
+      playhead: colors.beatGridPlayhead,
+      anchorStroke: colors.primary,
+    );
 
     final beatGrid = BeatGrid(bpm: widget.bpm!, anchorMs: widget.anchorMs);
     final beats = beatGrid.beatsInRange(0, _totalMs.toInt());
@@ -130,6 +142,7 @@ class _CircularBeatGridState extends State<CircularBeatGrid> {
                       labels: widget.labels,
                       labelMap: labelMap,
                       anchorMs: widget.anchorMs,
+                      colors: gridColors,
                     ),
                   ),
                   // Center text
@@ -138,19 +151,19 @@ class _CircularBeatGridState extends State<CircularBeatGrid> {
                     children: [
                       Text(
                         formatTimestamp(posMs.toInt()),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: 'monospace',
                           fontSize: 22,
-                          color: AppColors.textPrimary,
+                          color: colors.textPrimary,
                         ),
                       ),
                       if (currentCaption.isNotEmpty) ...[
                         const SizedBox(height: 4),
                         Text(
                           currentCaption,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
-                            color: AppColors.textSecondary,
+                            color: colors.textSecondary,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -197,6 +210,7 @@ class _CircularBeatGridPainter extends CustomPainter {
   final List<Label> labels;
   final Map<int, List<Label>> labelMap;
   final int anchorMs;
+  final BeatGridColors colors;
 
   _CircularBeatGridPainter({
     required this.beats,
@@ -206,6 +220,7 @@ class _CircularBeatGridPainter extends CustomPainter {
     required this.labels,
     required this.labelMap,
     required this.anchorMs,
+    required this.colors,
   });
 
   @override
@@ -244,15 +259,15 @@ class _CircularBeatGridPainter extends CustomPainter {
       // Color
       Color beatColor;
       if (isCurrentBeat) {
-        beatColor = AppColors.accent;
+        beatColor = colors.accent;
       } else if (isFilled) {
         beatColor = isMeasureStart
-            ? AppColors.accent.withAlpha(160)
-            : AppColors.accent.withAlpha(100);
+            ? colors.accentMuted
+            : colors.accentSubtle;
       } else {
         beatColor = isMeasureStart
-            ? const Color(0x4DFFFFFF)
-            : const Color(0x1FFFFFFF);
+            ? colors.emptyStrong
+            : colors.empty;
       }
 
       // Draw arc segment
@@ -276,7 +291,7 @@ class _CircularBeatGridPainter extends CustomPainter {
           beatArc,
           false,
           Paint()
-            ..color = AppColors.accent
+            ..color = colors.anchorStroke
             ..style = PaintingStyle.stroke
             ..strokeWidth = 2
             ..strokeCap = StrokeCap.butt,
@@ -289,7 +304,7 @@ class _CircularBeatGridPainter extends CustomPainter {
           beatArc,
           false,
           Paint()
-            ..color = AppColors.accent
+            ..color = colors.anchorStroke
             ..style = PaintingStyle.stroke
             ..strokeWidth = 2
             ..strokeCap = StrokeCap.butt,
@@ -325,7 +340,7 @@ class _CircularBeatGridPainter extends CustomPainter {
       innerPoint,
       outerPoint,
       Paint()
-        ..color = Colors.white
+        ..color = colors.playhead
         ..strokeWidth = 2.5
         ..strokeCap = StrokeCap.round,
     );
@@ -336,6 +351,7 @@ class _CircularBeatGridPainter extends CustomPainter {
     return oldDelegate.positionMs != positionMs ||
         oldDelegate.beats != beats ||
         oldDelegate.totalMs != totalMs ||
-        oldDelegate.labels != labels;
+        oldDelegate.labels != labels ||
+        oldDelegate.colors != colors;
   }
 }

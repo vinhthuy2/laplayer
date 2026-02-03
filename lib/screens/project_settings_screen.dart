@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/project.dart';
 import '../services/database_service.dart';
-import '../theme/app_theme.dart';
+import '../theme/app_colors.dart';
 import '../utils/time_format.dart';
 
 class ProjectSettingsScreen extends StatefulWidget {
@@ -91,6 +91,7 @@ class _ProjectSettingsScreenState extends State<ProjectSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
@@ -146,7 +147,7 @@ class _ProjectSettingsScreenState extends State<ProjectSettingsScreen> {
           // Font size slider
           Row(
             children: [
-              const Text('Small', style: TextStyle(color: AppColors.textSecondary)),
+              Text('Small', style: TextStyle(color: colors.textSecondary)),
               Expanded(
                 child: Slider(
                   value: _fontSize,
@@ -158,7 +159,7 @@ class _ProjectSettingsScreenState extends State<ProjectSettingsScreen> {
                   },
                 ),
               ),
-              const Text('Large', style: TextStyle(color: AppColors.textSecondary)),
+              Text('Large', style: TextStyle(color: colors.textSecondary)),
             ],
           ),
           // Preview
@@ -168,7 +169,7 @@ class _ProjectSettingsScreenState extends State<ProjectSettingsScreen> {
             decoration: BoxDecoration(
               color: _bgColor,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.white24),
+              border: Border.all(color: colors.divider),
             ),
             child: Center(
               child: Text(
@@ -182,8 +183,8 @@ class _ProjectSettingsScreenState extends State<ProjectSettingsScreen> {
             ),
           ),
           // Caption background color
-          const Text('Caption Background',
-              style: TextStyle(color: AppColors.textSecondary)),
+          Text('Caption Background',
+              style: TextStyle(color: colors.textSecondary)),
           const SizedBox(height: 8),
           Row(
             children: _bgColorPresets.map((color) {
@@ -202,7 +203,7 @@ class _ProjectSettingsScreenState extends State<ProjectSettingsScreen> {
                       color: color,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: selected ? AppColors.accent : Colors.white24,
+                        color: selected ? colors.primary : colors.divider,
                         width: selected ? 3 : 1,
                       ),
                     ),
@@ -213,8 +214,8 @@ class _ProjectSettingsScreenState extends State<ProjectSettingsScreen> {
           ),
           const SizedBox(height: 16),
           // Countdown background color
-          const Text('Countdown Background',
-              style: TextStyle(color: AppColors.textSecondary)),
+          Text('Countdown Background',
+              style: TextStyle(color: colors.textSecondary)),
           const SizedBox(height: 8),
           Row(
             children: _countdownColorPresets.map((color) {
@@ -234,7 +235,7 @@ class _ProjectSettingsScreenState extends State<ProjectSettingsScreen> {
                       color: color,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: selected ? AppColors.accent : Colors.white24,
+                        color: selected ? colors.primary : colors.divider,
                         width: selected ? 3 : 1,
                       ),
                     ),

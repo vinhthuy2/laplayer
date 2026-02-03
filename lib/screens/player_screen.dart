@@ -4,9 +4,10 @@ import 'package:provider/provider.dart';
 import '../models/label.dart';
 import '../models/project.dart';
 import '../providers/label_provider.dart';
+import '../providers/theme_provider.dart';
 import '../services/audio_service.dart';
 import '../services/database_service.dart';
-import '../theme/app_theme.dart';
+import '../theme/app_colors.dart';
 import '../widgets/seek_bar.dart';
 import '../widgets/circular_beat_grid.dart';
 import '../widgets/label_tile.dart';
@@ -124,73 +125,76 @@ class _PlayerScreenState extends State<PlayerScreen> {
     return showDialog<({int timestampMs, String caption, int colorValue})>(
       context: context,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
-          title: Text(title),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: timestampController,
-                decoration: const InputDecoration(
-                  labelText: 'Timestamp',
-                  hintText: 'mm:ss.SSS',
+        builder: (ctx, setDialogState) {
+          final colors = ctx.colors;
+          return AlertDialog(
+            title: Text(title),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: timestampController,
+                  decoration: const InputDecoration(
+                    labelText: 'Timestamp',
+                    hintText: 'mm:ss.SSS',
+                  ),
+                  keyboardType: TextInputType.datetime,
                 ),
-                keyboardType: TextInputType.datetime,
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: captionController,
-                autofocus: initialCaption.isEmpty,
-                decoration: const InputDecoration(
-                  labelText: 'Caption',
-                  hintText: 'e.g. Verse 1, Chorus',
+                const SizedBox(height: 8),
+                TextField(
+                  controller: captionController,
+                  autofocus: initialCaption.isEmpty,
+                  decoration: const InputDecoration(
+                    labelText: 'Caption',
+                    hintText: 'e.g. Verse 1, Chorus',
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: labelPresetColors.map((c) {
-                  final isSelected = c == selectedColor;
-                  return GestureDetector(
-                    onTap: () => setDialogState(() => selectedColor = c),
-                    child: Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: Color(c),
-                        shape: BoxShape.circle,
-                        border: isSelected
-                            ? Border.all(color: Colors.white, width: 3)
-                            : null,
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: labelPresetColors.map((c) {
+                    final isSelected = c == selectedColor;
+                    return GestureDetector(
+                      onTap: () => setDialogState(() => selectedColor = c),
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: Color(c),
+                          shape: BoxShape.circle,
+                          border: isSelected
+                              ? Border.all(color: colors.textPrimary, width: 3)
+                              : null,
+                        ),
                       ),
-                    ),
-                  );
-                }).toList(),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final caption = captionController.text.trim();
+                  if (caption.isEmpty) return;
+                  final parsedMs = parseTimestamp(timestampController.text.trim())
+                      ?? initialTimestampMs;
+                  Navigator.pop(ctx, (
+                    timestampMs: parsedMs,
+                    caption: caption,
+                    colorValue: selectedColor,
+                  ));
+                },
+                child: Text(initialCaption.isEmpty ? 'Add' : 'Save'),
               ),
             ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final caption = captionController.text.trim();
-                if (caption.isEmpty) return;
-                final parsedMs = parseTimestamp(timestampController.text.trim())
-                    ?? initialTimestampMs;
-                Navigator.pop(ctx, (
-                  timestampMs: parsedMs,
-                  caption: caption,
-                  colorValue: selectedColor,
-                ));
-              },
-              child: Text(initialCaption.isEmpty ? 'Add' : 'Save'),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -244,6 +248,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
   // --- Shared widgets ---
 
   Widget _buildBpmRow() {
+    final colors = context.colors;
     return GestureDetector(
       onLongPress: _setAnchor,
       child: Row(
@@ -251,11 +256,11 @@ class _PlayerScreenState extends State<PlayerScreen> {
         children: [
           Text(
             '${_project.bpm.toInt()} BPM · ${_speed}x',
-            style: const TextStyle(fontSize: 16, color: AppColors.textSecondary),
+            style: TextStyle(fontSize: 16, color: colors.textSecondary),
           ),
           if (_project.anchorTimestampMs > 0) ...[
             const SizedBox(width: 6),
-            Icon(Icons.anchor, size: 12, color: AppColors.accent),
+            Icon(Icons.anchor, size: 12, color: colors.primary),
           ],
         ],
       ),
@@ -263,6 +268,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
   }
 
   Widget _buildTimeDisplay() {
+    final colors = context.colors;
     return StreamBuilder<Duration>(
       stream: _audioService.positionStream,
       builder: (context, posSnap) {
@@ -273,10 +279,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
             final dur = durSnap.data ?? Duration.zero;
             return Text(
               '${formatDuration(pos)} / ${formatDuration(dur)}',
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'monospace',
                 fontSize: 18,
-                color: AppColors.textPrimary,
+                color: colors.textPrimary,
               ),
             );
           },
@@ -348,6 +354,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
   }
 
   Widget _buildTransportRow({double iconSize = 36, double playSize = 56}) {
+    final colors = context.colors;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -373,7 +380,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
               icon: Icon(
                 playing ? Icons.pause_circle : Icons.play_circle,
                 size: playSize,
-                color: AppColors.accent,
+                color: colors.primary,
               ),
               onPressed: _audioService.togglePlayPause,
               padding: EdgeInsets.zero,
@@ -400,11 +407,12 @@ class _PlayerScreenState extends State<PlayerScreen> {
   }
 
   Widget _buildSpeedRow() {
+    final colors = context.colors;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Row(
         children: [
-          const Text('Speed', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+          Text('Speed', style: TextStyle(color: colors.textSecondary, fontSize: 12)),
           Expanded(
             child: Slider(
               value: _speed,
@@ -418,21 +426,22 @@ class _PlayerScreenState extends State<PlayerScreen> {
               },
             ),
           ),
-          Text('${_speed}x', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+          Text('${_speed}x', style: TextStyle(color: colors.textSecondary, fontSize: 12)),
         ],
       ),
     );
   }
 
   Widget _buildLabelsList() {
+    final colors = context.colors;
     return Consumer<LabelProvider>(
       builder: (context, labelProv, _) {
         if (labelProv.labels.isEmpty) {
-          return const Center(
+          return Center(
             child: Text(
               'No labels yet.\nTap + to mark sections.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white54, fontSize: 13),
+              style: TextStyle(color: colors.textTertiary, fontSize: 13),
             ),
           );
         }
@@ -483,6 +492,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
   // --- Landscape layout (side-by-side) ---
 
   Widget _buildLandscapeBody() {
+    final colors = context.colors;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -506,7 +516,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   children: [
                     _buildTransportRow(iconSize: 28, playSize: 44),
                     const SizedBox(width: 16),
-                    const Text('Speed', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                    Text('Speed', style: TextStyle(color: colors.textSecondary, fontSize: 12)),
                     SizedBox(
                       width: 120,
                       child: Slider(
@@ -521,7 +531,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                         },
                       ),
                     ),
-                    Text('${_speed}x', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                    Text('${_speed}x', style: TextStyle(color: colors.textSecondary, fontSize: 12)),
                   ],
                 ),
               ],
@@ -552,12 +562,21 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return ChangeNotifierProvider.value(
       value: _labelProvider,
       child: Scaffold(
         appBar: AppBar(
           title: Text(_project.name),
           actions: [
+            IconButton(
+              icon: Icon(
+                context.watch<ThemeProvider>().isDark
+                    ? Icons.light_mode
+                    : Icons.dark_mode,
+              ),
+              onPressed: () => context.read<ThemeProvider>().toggle(),
+            ),
             IconButton(
               icon: const Icon(Icons.settings),
               onPressed: () {
@@ -597,7 +616,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(8),
-                    color: Colors.red.shade900,
+                    color: colors.destructive,
                     child: Text(
                       _audioError!,
                       style: const TextStyle(color: Colors.white, fontSize: 12),
